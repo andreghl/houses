@@ -1,0 +1,21 @@
+#, [], {}, \, ~
+
+        if percent:
+            types = ["u", "r", "i", "o"]
+            data = np.empty([len(types), self.steps + 1])
+
+            for i in range(self.steps + 1):
+
+                factors = {"u":0, "r":0, "i":0, "o":0}
+
+                for j in range(self.agents):
+
+                    for factor in types:
+
+                        if self.agentStatus[j, i] == factor:
+                            factors[factor] += 1
+                
+                data[:, i] = list(factors.values())
+                data[:, i] = data[:, i] / self.agents
+
+            return pd.DataFrame(data).rename(index={0: "u", 1: "r", 2: "i", 3: "o"})
