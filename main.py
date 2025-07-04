@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-from Market import Market
+
+from model.Market import Market
 
 agents = 100
 houses = 100
@@ -26,10 +26,17 @@ houses = market.dataset("houses", True)
 
 share = market.dataset("share")
 
+share["unhoused"] = share.pop("u")
+share["renter"] = share.pop("r")
+share["investor"] = share.pop("i")
+share["owner"] = share.pop("o")
+
 fig, ax = plt.subplots()
 ax.stackplot(time, share.values(), labels = share.keys())
 plt.title("Agent Status")
 ax.legend(loc = "upper right", reverse = True)
 plt.xlabel("Time")
 plt.grid()
+
+plt.savefig(f"img/{market.seed}.png")
 plt.show()

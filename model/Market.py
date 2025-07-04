@@ -1,5 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
+
 from House import House
 from Agent import Agent
 from Data import Data
