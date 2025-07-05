@@ -55,3 +55,5 @@ class Agent():
         self.rent()
         self.landlord()
         self.tenant()
+
+        

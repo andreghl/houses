@@ -1,8 +1,9 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
-from House import House
-from Agent import Agent
-from Data import Data
+from model.House import House
+from model.Agent import Agent
+from model.Data import Data
 
 class Market():
     
@@ -62,17 +63,6 @@ class Market():
             self.data.collect(self.time)
             self.time += 1
 
-    def summarize(self):
-        summary = f"""The simulation contains {self.nAgents} agents and {self.nHouses} houses. The agents were endowned with an average income of {self.income} (sd: {self.incomeSD}) and an average wealth of {self.wealth} (sd: {self.wealthSD}).
-                """
-        print(summary)
-
-    def simulate(self, summarize:bool = True):
-
-        self.run()
-        if summarize:
-            self.summarize()
-
     def dataset(self, dataset:str, transpose:bool = False):
 
         match dataset:
@@ -89,8 +79,41 @@ class Market():
             case "rent":
                 dataframe = self.data.rent(transpose)
             case "share":
-                dataframe = self.data.share()    
+                dataframe = self.data.share()
+
+                dataframe["unhoused"] = dataframe.pop("u")
+                dataframe["renter"] = dataframe.pop("r")
+                dataframe["investor"] = dataframe.pop("i")
+                dataframe["owner"] = dataframe.pop("o") 
             case _:
                 dataframe = {}
         
         return dataframe
+
+    def plot(self):
+        time = np.linspace(0, self.Time, self.Time + 1)
+        share = self.dataset("share")
+        
+        fig, ax = plt.subplots()
+        ax.stackplot(time, share.values(), labels = share.keys())
+        plt.title("Agent Status")
+        ax.legend(loc = "upper right", reverse = True)
+        plt.xlabel("Time")
+        plt.grid()
+
+        plt.savefig(f"img/{self.seed}.png")
+        plt.show()
+
+    def summarize(self, plot:bool = True):
+        summary = f"""The simulation contains {self.nAgents} agents and {self.nHouses} houses. The agents were endowned with an average income of {self.income} (sd: {self.incomeSD}) and an average wealth of {self.wealth} (sd: {self.wealthSD})."""
+
+        print(summary)
+
+        if plot:
+            self.plot()
+
+    def simulate(self, plot:bool = True):
+
+        self.run()
+        self.summarize()
+
