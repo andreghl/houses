@@ -105,7 +105,7 @@ class Market():
         plt.show()
 
     def summarize(self, plot:bool = True):
-        summary = f"""The simulation contains {self.nAgents} agents and {self.nHouses} houses. The agents were endowned with an average income of {self.income} (sd: {self.incomeSD}) and an average wealth of {self.wealth} (sd: {self.wealthSD})."""
+        summary = f"""The simulation contains {self.nAgents} agents and {self.nHouses} houses. The agents were endowned with an average income of {self.income} (sd: {self.incomeSD}) and an average wealth of {self.wealth} (sd: {self.wealthSD}). The average house price was {self.price} (sd: {self.priceSD}) and the average rent was {self.rent} (sd: {self.rentSD})."""
 
         print(summary)
 

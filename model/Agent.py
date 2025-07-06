@@ -19,9 +19,13 @@ class Agent():
                 house.status = "rent" if len(self.houses) >= 1 else "owned"
                 house.owner = self.id
                 self.wealth -= house.price
-                self.houses.append(house)
                 self.rentPrice = 0
                 self.lease = None
+                self.houses.append(house)
+
+                for home in self.houses:
+                    if home.id == self.lease:
+                        home.status = "empty"
                 break
     
     def rent(self):
