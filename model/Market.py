@@ -28,7 +28,7 @@ class Market():
         self.min = 0.2
         self.max = 0.6
 
-        self.data = Data(self, nAgents, Time)
+        self.data = Data(self, nAgents, nHouses, Time)
 
     def setSeed(self, seed):
         self.seed = seed
@@ -63,6 +63,26 @@ class Market():
             self.data.collect(self.time)
             self.time += 1
 
+    def share(self, dataset:str):
+
+        match dataset:
+            case "agent":
+                dataframe = self.data.share()
+                dataframe["unhoused"] = dataframe.pop("u")
+                dataframe["renter"] = dataframe.pop("r")
+                dataframe["investor"] = dataframe.pop("i")
+                dataframe["owner"] = dataframe.pop("o")
+            case "house":
+                dataframe = self.data.shareHouse()
+                dataframe["empty"] = dataframe.pop("e")
+                dataframe["rented"] = dataframe.pop("r")
+                dataframe["owned"] = dataframe.pop("o")
+                dataframe["to rent"] = dataframe.pop("t")
+            case _:
+                dataframe = {}
+        
+        return dataframe
+    
     def dataset(self, dataset:str, transpose:bool = False):
 
         match dataset:
@@ -75,45 +95,50 @@ class Market():
             case "budget":
                 dataframe = self.data.budget(transpose)
             case "houses":
-                dataframe = self.data.houses(transpose)
+                dataframe = self.data.house(transpose)
             case "rent":
                 dataframe = self.data.rent(transpose)
-            case "share":
-                dataframe = self.data.share()
-
-                dataframe["unhoused"] = dataframe.pop("u")
-                dataframe["renter"] = dataframe.pop("r")
-                dataframe["investor"] = dataframe.pop("i")
-                dataframe["owner"] = dataframe.pop("o") 
+            case "housePrice":
+                dataframe = self.data.housesPrice()
+            case "houseRent":
+                dataframe = self.data.housesRent()
+            case "houseStatus":
+                dataframe = self.data.housesStatus(transpose)
             case _:
                 dataframe = {}
-        
+    
         return dataframe
 
     def plot(self):
         time = np.linspace(0, self.Time, self.Time + 1)
-        share = self.dataset("share")
+        agent = self.share("agent")
+        house = self.share("house")
         
         fig, ax = plt.subplots()
-        ax.stackplot(time, share.values(), labels = share.keys())
+        ax.stackplot(time, *list(agent.values()), labels = agent.keys())
         plt.title("Agent Status")
         ax.legend(loc = "upper right", reverse = True)
         plt.xlabel("Time")
         plt.grid()
+        plt.savefig(f"img/agent/{self.seed}.png")
 
-        plt.savefig(f"img/{self.seed}.png")
+        fig, ax = plt.subplots()
+        ax.stackplot(time, *list(house.values()), labels = house.keys())
+        plt.title("House Status")
+        ax.legend(loc = "upper right", reverse = True)
+        plt.xlabel("Time")
+        plt.savefig(f"img/house/{self.seed}.png")
         plt.show()
 
-    def summarize(self, plot:bool = True):
+    def summarize(self):
         summary = f"""The simulation contains {self.nAgents} agents and {self.nHouses} houses. The agents were endowned with an average income of {self.income} (sd: {self.incomeSD}) and an average wealth of {self.wealth} (sd: {self.wealthSD}). The average house price was {self.price} (sd: {self.priceSD}) and the average rent was {self.rent} (sd: {self.rentSD})."""
 
         print(summary)
-
-        if plot:
-            self.plot()
 
     def simulate(self, plot:bool = True):
 
         self.run()
         self.summarize()
+        if plot:
+            self.plot()
 

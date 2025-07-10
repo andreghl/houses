@@ -3,10 +3,11 @@ import numpy as np
 
 class Data():
 
-    def __init__(self, model, agents:int, steps:int):
+    def __init__(self, model, agents:int, houses:int, steps:int):
 
         self.model = model
         self.agents = agents
+        self.houses = houses
         self.steps = steps
         self.index = 0
         
@@ -16,6 +17,10 @@ class Data():
         self.agentBudget = np.zeros([self.agents, self.steps + 1])
         self.agentHouses = np.zeros([self.agents, self.steps + 1])
         self.agentRent = np.zeros([self.agents, self.steps + 1])
+
+        self.housePrice = np.zeros(self.houses)
+        self.houseRent = np.zeros(self.houses)
+        self.houseStatus = np.empty([self.houses, self.steps + 1], dtype = str)
 
 
     def collect(self, time):
@@ -29,7 +34,14 @@ class Data():
             self.agentWealth[agent.id, self.index] = agent.wealth
             self.agentBudget[agent.id, self.index] = agent.budget
             self.agentHouses[agent.id, self.index] = len(agent.houses)
-            self.agentRent[agent.id, self.index] = agent.rentPrice
+            self.agentRent[agent.id, self.index] =  0 if agent.lease == None else agent.lease.rent
+
+        for house in self.model.houses:
+            
+            self.housePrice[house.id] = house.price
+            self.houseRent[house.id] = house.rent
+            self.houseStatus[house.id, self.index] = house.status
+
 
     def status(self, transpose:bool = False):
         if transpose:
@@ -69,7 +81,7 @@ class Data():
         else:
             return pd.DataFrame(self.agentBudget.transpose())
     
-    def houses(self, transpose:bool = False):
+    def house(self, transpose:bool = False):
         if transpose:
             return pd.DataFrame(self.agentHouses)
         else:
@@ -80,7 +92,32 @@ class Data():
             return pd.DataFrame(self.agentRent.transpose())
         else:
             return pd.DataFrame(self.agentRent.transpose())
+        
+    def housesPrice(self):
+            return pd.DataFrame(self.housePrice)
+    
+    def housesRent(self):
+        return pd.DataFrame(self.houseRent)
+        
+    def housesStatus(self, transpose:bool = False):
+        if transpose:
+            return pd.DataFrame(self.houseStatus)
+        else:
+            return pd.DataFrame(self.houseStatus.transpose())
+        
+    def shareHouse(self):
+        factors = {"o": [0 for x in range(self.steps + 1)], 
+                        "r": [0 for x in range(self.steps + 1)],
+                        "t": [0 for x in range(self.steps + 1)],
+                        "e": [0 for x in range(self.steps + 1)]}
+            
+        for col in range(self.steps + 1):
+            for row in range(self.houses):
 
+                for factor in factors.keys():
+                    if self.houseStatus[row, col] == factor:
+                        factors[factor][col] +=1
+        return factors 
 
 
 

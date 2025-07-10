@@ -10,10 +10,8 @@ price = 1000000
 priceSD = 250
 rent = 10000
 rentSD = 250
-Time = 10
+Time = 50
 seed = 2025
-
-
 
 market = Market(agents, houses, income, wealth, price, rent, incomeSD, wealthSD, priceSD, rentSD, Time)
 market.setSeed(seed)
