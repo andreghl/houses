@@ -19,8 +19,6 @@ class Agent():
             self.status = "owner"
         elif self.lease != None:
             self.status = "renter"
-        else:
-            self.status = "unhoused"
 
     def buy(self):
         for house in self.market.houses:
@@ -29,20 +27,22 @@ class Agent():
                 self.wealth -= house.price
                 self.houses.append(house)
 
-                for home in self.houses:
+                for home in self.market.houses:
                     if home.isRented(self):
-                        home.status = "empty"
-
-                self.lease = None
-        self.update()
+                        self.moving()
     
     def rent(self):
         if len(self.houses) == 0:
             for house in self.market.houses:
                 if house.canBeRented(self):
-                    house.rental()
+                    house.rental(self)
                     self.lease = house
-        self.update()
+
+    def moving(self):
+        if self.lease != None:
+            self.lease.moving(self)
+            self.lease = None
+
 
     def landlord(self):
         for house in self.houses:
@@ -55,12 +55,12 @@ class Agent():
 
     def step(self):
         
-        self.buy()
         self.rent()
+        self.buy()
         self.landlord()
         self.tenant()
-
-
+        self.update()
+        
         self.wealth += self.income
         self.income = self.INCOME
 

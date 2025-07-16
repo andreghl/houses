@@ -48,19 +48,19 @@ class Market():
             price = np.random.normal(self.price, self.priceSD)
             rent = np.random.normal(self.rent, self.rentSD)
 
-            house = House(i, price, rent)
+            house = House(i, int(price), int(rent))
             self.houses.append(house)
 
     def run(self):
 
         self.create()
 
-        while self.time <= self.Time: 
+        while self.time <= self.Time:
 
+            self.data.collect(self.time) 
             for agent in self.agents:
                 agent.step()
 
-            self.data.collect(self.time)
             self.time += 1
 
     def share(self, dataset:str):
@@ -104,9 +104,25 @@ class Market():
                 dataframe = self.data.housesRent()
             case "houseStatus":
                 dataframe = self.data.housesStatus(transpose)
+            case "tenant":
+                dataframe = self.data.tenant(transpose)
+            case "own":
+                dataframe = self.data.own(transpose)
+            case "invested":
+                dataframe = self.data.invested(transpose)
+            case "homeless":
+                dataframe = self.data.homeless(transpose)
+            case "renter":
+                dataframe = self.data.renter(transpose)
+            case "owner":
+                dataframe = self.data.owner(transpose)
+            case "investor":
+                dataframe = self.data.investor(transpose)
+            case "unhoused":
+                dataframe = self.data.unhoused(transpose)
             case _:
-                dataframe = {}
-    
+                dataframe = self.data.default()
+
         return dataframe
 
     def plot(self):
